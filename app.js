@@ -6,7 +6,7 @@ const PORT = 3000;
 
 function sayHello(name) {
   if (!name) {
-    console.log("Name is required");
+    console.log("Name is requiredd");
     return;
   }
   console.log(`Hello, ${name}!`);
