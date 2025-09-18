@@ -1,38 +1,56 @@
-// app.js
-
+const express = require('express');
 const http = require('http');
+const app = express();
 
-const PORT = 3000;
+// 👇 Hardcoded secret (Security Hotspot)
+const SECRET_KEY = 'super-secret-key-123';
 
-function sayHello(name) {
-  if (!name) {
-    console.log("Name is requiredd");
-    console.log("Name is requiredd");
-    console.log("Name is requiredd");
-    return;
-  }
-  console.log(`Hello, ${name}!`);
-}
+app.get('/', (req, res) => {
+  const userInput = req.query.input;
 
-const server = http.createServer((req, res) => {
-  if (req.url === "/") {
-    sayHello("World");
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Welcome to Node.js Server\n');
-  } else if (req.url === "/hello") {
-    sayHello("User");
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Hello User\n');
-  } else if (req.url === "/greet") {
-    sayHello("Guest");
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('Greetings Guest\n');
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' });
-    res.end('Not Found\n');
+  // 👇 Vulnerability: Using eval on user input
+  try {
+    const result = eval(userInput); // ❌ Dangerous!
+    res.send(`Eval result: ${result}`);
+  } catch (e) {
+    res.status(400).send('Invalid input');
   }
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+app.get('/insecure', (req, res) => {
+  // 👇 Using HTTP instead of HTTPS (Security Hotspot)
+  http.get('http://example.com', (response) => {
+    res.send('Insecure request sent');
+  });
+});
+
+app.get('/risky', (req, res) => {
+  // 👇 Swallowed exception (Code Smell)
+  try {
+    riskyOperation();
+  } catch (e) {
+    // silently ignored ❌
+  }
+  res.send('Risky operation attempted');
+});
+
+function riskyOperation() {
+  throw new Error('Something went wrong!');
+}
+
+// 👇 Code Duplication Example
+function duplicateCodeBlock() {
+  console.log('Duplicated Line 1');
+  console.log('Duplicated Line 2');
+  console.log('Duplicated Line 3');
+}
+
+function anotherDuplicateBlock() {
+  console.log('Duplicated Line 1');
+  console.log('Duplicated Line 2');
+  console.log('Duplicated Line 3');
+}
+
+app.listen(3000, () => {
+  console.log('Server running on http://localhost:3000');
 });
